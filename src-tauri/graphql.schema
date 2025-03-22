@@ -1,0 +1,12 @@
+schema {
+  query: Query
+  mutation: Mutation
+}
+
+type Mutation {
+  add(a: Int!, b: Int!): Int!
+}
+
+type Query {
+  greet(name: String!): String!
+}

@@ -3,13 +3,35 @@ import logo from "./assets/logo.svg";
 import { invoke } from "@tauri-apps/api/core";
 import "./App.css";
 
+const graphql = async <T = unknown>(
+  query: string,
+  variables: Record<string, unknown>,
+): Promise<T> => {
+  return invoke("graphql", {
+    body: {
+      query,
+      variables,
+    },
+  });
+};
+
 function App() {
   const [greetMsg, setGreetMsg] = createSignal("");
   const [name, setName] = createSignal("");
 
   async function greet() {
     // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-    setGreetMsg(await invoke("greet", { name: name() }));
+    setGreetMsg(
+      await graphql<{data: {greet: string}}>(
+        `query Greet($name: String!){
+            greet(name: $name)
+         }
+        `,
+        {
+          name: name(),
+        },
+      ).then(r => r.data.greet),
+    );
   }
 
   return (
