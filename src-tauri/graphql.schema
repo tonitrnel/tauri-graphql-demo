@@ -3,10 +3,57 @@ schema {
   mutation: Mutation
 }
 
+scalar Cursor
+
+scalar Timestamp
+
 type Mutation {
   add(a: Int!, b: Int!): Int!
+  addTodo(description: String!): ID!
+  completeTodo(id: ID!, done: Boolean!): Boolean!
+  removeTodo(id: ID!): Boolean!
+  editTodo(id: ID!, description: String!): Boolean!
+  toggleAll(done: Boolean!): Boolean!
+  clearCompleted: Boolean!
+}
+
+type PageInfo {
+  "是否存在上一页（当使用 last/before 时可用）"
+  hasPreviousPage: Boolean!
+  "是否存在下一页（当使用 first/after 时可用）"
+  hasNextPage: Boolean!
+  "当前页第一条记录的游标"
+  startCursor: Cursor
+  "当前页最后一条记录的游标"
+  endCursor: Cursor
 }
 
 type Query {
   greet(name: String!): String!
+  listTodos(first: Int, after: Cursor, last: Int, before: Cursor): TodoConnection!
+}
+
+type Todo {
+  id: ID!
+  description: String!
+  done: Boolean!
+  createdAt: Timestamp!
+}
+
+type TodoConnection {
+  "分页连接的核心数据载体，包含节点及其关联的元数据（如游标）"
+  edges: [TodoEdge!]!
+  "直接访问节点数据的快捷方式，省略 edges 层"
+  nodes: [Todo!]!
+  "匹配当前筛选条件的总记录数，不受分页限制"
+  totalCount: Int!
+  "分页控制元数据，用于确定是否可翻页及边界游标"
+  pageInfo: PageInfo!
+}
+
+type TodoEdge {
+  "表示分页结果中的单个数据节点，包含实际业务数据"
+  node: Todo!
+  "唯一标识分页位置的游标"
+  cursor: String!
 }

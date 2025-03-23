@@ -1,11 +1,7 @@
 use crate::utils::base64_url;
 use juniper::{graphql_scalar, GraphQLScalar, InputValue, ScalarValue, Value};
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
-use sqlx::encode::IsNull;
-use sqlx::error::BoxDynError;
-use sqlx::sqlite::{SqliteTypeInfo, SqliteValueRef};
-use sqlx::{Database, Decode, Encode, Sqlite, Type};
-use std::fmt::{Debug, Display};
+use serde::{Deserialize, Serialize};
+use sqlx::{sqlite::SqliteTypeInfo, Database, Sqlite, Type};
 
 #[derive(Clone, Debug, Deserialize, PartialEq, ScalarValue, Serialize)]
 #[serde(untagged)]
@@ -83,9 +79,9 @@ impl From<Timestamp> for i64 {
         value.0
     }
 }
-impl Display for Timestamp {
+impl std::fmt::Display for Timestamp {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        Display::fmt(&self.0, f)
+        std::fmt::Display::fmt(&self.0, f)
     }
 }
 impl Type<Sqlite> for Timestamp {
@@ -133,9 +129,9 @@ impl From<ID> for i64 {
         value.0
     }
 }
-impl Display for ID {
+impl std::fmt::Display for ID {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        Display::fmt(&self.0, f)
+        std::fmt::Display::fmt(&self.0, f)
     }
 }
 impl Type<Sqlite> for ID {
@@ -150,64 +146,5 @@ impl Type<Sqlite> for ID {
 impl PartialEq<i64> for ID {
     fn eq(&self, other: &i64) -> bool {
         self.0 == *other
-    }
-}
-
-#[derive(Debug, Clone, Copy, GraphQLScalar)]
-#[graphql(transparent)]
-pub struct Boolean(bool);
-
-impl From<bool> for Boolean {
-    fn from(b: bool) -> Boolean {
-        Boolean(b)
-    }
-}
-impl From<Boolean> for bool {
-    fn from(b: Boolean) -> bool {
-        b.0
-    }
-}
-impl From<i64> for Boolean {
-    fn from(b: i64) -> Boolean {
-        Boolean(b != 0)
-    }
-}
-impl Serialize for Boolean {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        serializer.serialize_bool(self.0)
-    }
-}
-impl<'de> Deserialize<'de> for Boolean {
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where
-        D: Deserializer<'de>,
-    {
-        let value = <bool as Deserialize>::deserialize(deserializer)?;
-        Ok(Boolean::from(value))
-    }
-}
-
-impl<'q> Encode<'q, Sqlite> for Boolean {
-    fn encode_by_ref(
-        &self,
-        buf: &mut <Sqlite as Database>::ArgumentBuffer<'q>,
-    ) -> Result<IsNull, BoxDynError> {
-        <bool as Encode<'q, Sqlite>>::encode_by_ref(&self.0, buf)
-    }
-}
-impl<'r> Decode<'r, Sqlite> for Boolean {
-    fn decode(value: SqliteValueRef<'r>) -> Result<Self, BoxDynError> {
-        <bool as Decode<'r, Sqlite>>::decode(value).map(Boolean::from)
-    }
-}
-impl Type<Sqlite> for Boolean {
-    fn type_info() -> SqliteTypeInfo {
-        <i64 as Type<Sqlite>>::type_info()
-    }
-    fn compatible(ty: &<Sqlite as Database>::TypeInfo) -> bool {
-        <i64 as Type<Sqlite>>::compatible(ty)
     }
 }

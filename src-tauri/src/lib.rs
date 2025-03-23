@@ -1,8 +1,10 @@
-use tauri::Manager;
 use dotenvy::dotenv;
+use tauri::Manager;
 
 mod commands;
 mod graphql;
+mod models;
+mod repositories;
 mod state;
 mod utils;
 

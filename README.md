@@ -1,6 +1,6 @@
-# Tauri + Solid + Typescript
+# TodoMVC Based on Tauri + Solid + Typescript + GraphQL
 
-This template should help get you started developing with Tauri, Solid and Typescript in Vite.
+![Screenshot](./docs/Screenshot%202025-03-23%20224116.png)
 
 ## Recommended IDE Setup
 
@@ -20,5 +20,5 @@ sqlx migrate run
 ```
 2. Run
 ```bash
-pnpm tauri dev
+pnpm start -- --no-watch
 ```
